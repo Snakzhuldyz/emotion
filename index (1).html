@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Эмоция термометрі</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* VOICE: жылы, сабырлы, балаға түсінікті — психолог кабинеті
+   IDEA: қабырғадағы «Эмоция термометрі» плакаты тіріліп, қолмен басқарылады
+   PICTURE: үлкен ойын сахнасы — доп, қағаз, шәйнек, гүл, көпіршік, термометр
+   COLOUR and TYPE: терең көк-жасыл жолақ + термометрдің бес түсі; Nunito
+   LAYOUT: жоғарыда атау мен камера, астында 1-қадам, алты жаттығу, психолог бөлімі */
+:root{color-scheme:light dark;--bg:light-dark(#f5f2ec,#10171a);--ink:light-dark(#1b2530,#eef3f1);--soft:light-dark(#5b6670,#a3b2b6);--card:light-dark(#ffffff,#1a2428);--line:light-dark(#e2dccf,#2a383c);--teal:#0f5c63;--tl:light-dark(#0f5c63,#7fd3cf);--coral:#ff6a4d;--stage:light-dark(#e6f1ef,#152427)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.5 Nunito,system-ui,"Segoe UI",Arial,sans-serif;overflow-x:clip}
+button,input{font:inherit}
+button{cursor:pointer;border:0;border-radius:14px;min-height:46px;padding:10px 18px;font-weight:800}
+button:focus-visible,input:focus-visible{outline:3px solid var(--coral);outline-offset:2px}
+.top{background:var(--teal);color:#fff;padding:22px max(5vw,16px) 26px}
+.top .in{max-width:1240px;margin:auto;display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;justify-content:space-between}
+h1{margin:0;font-size:clamp(32px,5vw,50px);line-height:1.05;font-weight:900;text-wrap:balance}
+.sub{margin:6px 0 0;color:#cfe9e6;font-weight:700}
+.camrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{background:var(--coral);color:#fff}
+.ghost{background:rgba(255,255,255,.14);color:#fff}
+.plain{background:var(--card);color:var(--ink);border:2px solid var(--line)}
+#status{flex-basis:100%;font-size:15px;color:#d6efec;font-weight:700}
+#status.ok{color:#b9f5c9}
+main{max-width:1240px;margin:auto;padding:26px max(5vw,16px) 60px}
+.step{background:var(--card);border:2px solid var(--line);border-radius:24px;padding:20px 22px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.step h2{margin:0;font-size:24px;line-height:1.2}
+.step p{margin:4px 0 0;color:var(--soft);font-weight:700}
+.me{display:flex;gap:14px;align-items:center}
+.me canvas{width:64px;height:64px;flex:none}
+h3{font-size:22px;margin:30px 0 12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:16px}
+.card{background:var(--card);border:2px solid var(--line);border-radius:22px;padding:18px;text-align:left;display:grid;grid-template-columns:62px 1fr;gap:4px 14px;align-items:start;color:var(--ink);min-height:0;font-weight:700}
+.card svg{grid-row:span 3;width:62px;height:62px}
+.card b{font-size:19px;font-weight:900}
+.card span{color:var(--soft);font-size:15px}
+.card em{font-style:normal;font-size:14px;color:var(--tl)}
+.card.rec{border-color:var(--coral);box-shadow:0 0 0 3px color-mix(in srgb,var(--coral) 25%,transparent)}
+.card .tag{grid-column:2;justify-self:start;background:var(--coral);color:#fff;border-radius:99px;padding:1px 10px;font-size:13px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.bar h2{margin:0;font-size:clamp(24px,3.4vw,34px);line-height:1.1}
+.pill{background:var(--card);border:2px solid var(--line);border-radius:99px;padding:6px 16px;font-weight:900;white-space:nowrap}
+.stage{position:relative;height:clamp(380px,64vh,640px);border-radius:26px;background:var(--stage);overflow:hidden;touch-action:none;user-select:none}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%}
+#hint{margin:14px 0 0;font-size:clamp(19px,2.6vw,26px);font-weight:900;text-align:center;color:var(--tl);min-height:1.5em}
+.ov{position:absolute;left:0;right:0;top:14px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:0 12px;z-index:2}
+.ov input{font-size:18px;padding:10px 14px;border-radius:14px;border:2px solid var(--line);background:var(--card);color:var(--ink);width:min(320px,100%)}
+.chip{color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35);min-height:44px}
+.chip.on{outline:3px solid var(--ink);outline-offset:2px}
+.seg button{background:var(--card);color:var(--ink);border:2px solid var(--line)}
+.seg button.on{background:var(--teal);color:#fff;border-color:var(--teal)}
+.done{position:absolute;inset:0;display:grid;place-content:center;gap:14px;text-align:center;background:color-mix(in srgb,var(--stage) 82%,transparent);z-index:3;padding:20px}
+.done h2{margin:0;font-size:clamp(34px,6vw,56px);line-height:1.05;color:var(--tl)}
+.done p{margin:0;font-weight:800;color:var(--soft)}
+.done .row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.res{background:var(--card);border:2px solid var(--line);border-radius:26px;padding:clamp(20px,4vw,44px);text-align:center}
+.res h2{margin:0 0 6px;font-size:clamp(30px,5vw,48px);line-height:1.08;text-wrap:balance}
+.faces{display:flex;gap:clamp(12px,4vw,40px);justify-content:center;align-items:center;margin:20px 0}
+.faces figure{margin:0;display:grid;gap:6px;justify-items:center;font-weight:800;color:var(--soft)}
+.faces canvas{width:clamp(90px,18vw,150px);height:clamp(90px,18vw,150px)}
+.arrow{font-size:44px;font-weight:900;color:var(--soft)}
+.res p{font-size:19px;font-weight:700;max-width:60ch;margin:0 auto 18px}
+.res .row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+details{margin-top:34px;background:var(--card);border:2px solid var(--line);border-radius:22px;padding:16px 20px}
+summary{font-weight:900;font-size:19px;cursor:pointer}
+.st{display:grid;gap:8px;margin-top:14px}
+.sr{display:grid;grid-template-columns:minmax(0,13em) 1fr 1fr;gap:10px;align-items:center;font-size:15px;font-weight:700}
+.sr .m{height:22px;border-radius:8px;background:var(--line);overflow:hidden;position:relative}
+.sr .m i{display:block;height:100%;border-radius:8px}
+.sr .m s{position:absolute;right:6px;top:0;font-size:13px;text-decoration:none;font-weight:900;line-height:22px}
+.sr.h{color:var(--soft);font-size:13px}
+.note{color:var(--soft);font-size:14px;font-weight:700}
+#camBox{position:fixed;right:12px;bottom:12px;width:150px;height:113px;border-radius:14px;overflow:hidden;border:3px solid var(--teal);background:#000;z-index:9;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+#camBox video{display:none}
+#camBox canvas{width:100%;height:100%}
+@media(max-width:600px){.sr{grid-template-columns:1fr 1fr}.sr>span:first-child{grid-column:span 2}#camBox{width:104px;height:78px}}
+body.playing .sub,body.playing #status{display:none}
+body.playing .top{padding-block:12px}
+body.playing h1{font-size:clamp(22px,3vw,30px)}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header class="top"><div class="in">
+  <div><h1>Эмоция термометрі</h1><p class="sub">Психологтың интерактивті жаттығулары · қол қимылымен не саусақпен</p></div>
+  <div class="camrow">
+    <button class="btn" id="camBtn" type="button">Камераны қосу</button>
+    <button class="ghost" id="fsBtn" type="button">Толық экран</button>
+    <span id="status">Камерасыз да жұмыс істейді: саусақпен басып не тінтуірмен.</span>
+  </div>
+</div></header>
+
+<main>
+<section id="home">
+  <div class="step" id="stepBox"></div>
+  <h3>Жаттығулар</h3>
+  <div class="grid" id="cards"></div>
+  <details id="psy">
+    <summary>Психологқа: анонимді көрсеткіш</summary>
+    <div class="st" id="stats"></div>
+    <p class="note">Есімдер сақталмайды. Нәтижелер тек осы құрылғыда жиналады. Камера бейнесі ешқайда жіберілмейді, тек осы құрылғыда өңделеді.</p>
+    <div class="row" style="display:flex;gap:10px;flex-wrap:wrap"><button class="plain" id="resetBtn" type="button">Көрсеткішті тазалау</button><button class="btn" id="resetYes" type="button" hidden>Иә, тазалау</button></div>
+  </details>
+</section>
+
+<section id="play" hidden>
+  <div class="bar"><button class="plain" id="backBtn" type="button">← Артқа</button><h2 id="ptitle"></h2><span class="pill" id="prog"></span></div>
+  <div class="stage" id="stage">
+    <canvas id="cv"></canvas>
+    <form class="ov" id="ovWord" hidden><input id="wordIn" maxlength="22" placeholder="Мысалы: бақылау жұмысы" autocomplete="off"><button class="btn" type="submit">Қағазға жаз</button></form>
+    <div class="ov" id="ovColors" hidden></div>
+    <div class="ov seg" id="ovMode" hidden><button type="button" data-m="height" class="on">Қол биіктігі</button><button type="button" data-m="fingers">Саусақ саны</button></div>
+    <div class="done" id="doneBox" hidden><h2>Жарайсың!</h2><p id="doneMsg"></p><div class="row"><button class="btn" id="againMeasure" type="button">Көңіл-күйді қайта өлшеу</button><button class="plain" id="otherEx" type="button">Басқа жаттығу</button></div></div>
+  </div>
+  <p id="hint"></p>
+</section>
+
+<section id="result" hidden>
+  <div class="res">
+    <h2 id="rTitle"></h2>
+    <div class="faces" id="rFaces"></div>
+    <p id="rMsg"></p>
+    <div class="row"><button class="btn" id="nextKid" type="button">Келесі оқушы</button><button class="plain" id="moreEx" type="button">Тағы жаттығу</button></div>
+  </div>
+</section>
+</main>
+<div id="camBox" hidden><video id="vid" playsinline muted></video><canvas id="pv" width="160" height="120"></canvas></div>
+
+<script>
+{
+const $=s=>document.querySelector(s);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const hex=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+const mix=(a,b,t)=>{const A=hex(a),B=hex(b);return'#'+A.map((v,i)=>Math.round(lerp(v,B[i],t)).toString(16).padStart(2,'0')).join('')};
+const light=(c,t)=>{const A=hex(c);return'rgb('+A.map(v=>Math.round(lerp(v,255,t))).join(',')+')'};
+
+const LV=[null,
+ {t:'Қатты мазасызмын, стрестемін',c:'#e5483b'},
+ {t:'Көңілсізмін, уайымдап жүрмін',c:'#f08a2c'},
+ {t:'Бейтараппын, қалыптымын',c:'#f2c230'},
+ {t:'Көңілдімін, жақсы жағдайдамын',c:'#8cc63f'},
+ {t:'Өте қуаныштымын, шабыттандым',c:'#2fae5b'}];
+const EX=[
+ {id:'squeeze',t:'Ашуды қыс',d:'Антистресс допты 5 рет қысып, босат.',g:'Жұдырық ↔ алақан',
+  i:'<circle cx="31" cy="33" r="22" fill="#e5483b"/><ellipse cx="24" cy="25" rx="7" ry="4" fill="#fff" opacity=".5"/>'},
+ {id:'crumple',t:'Умажда да лақтыр',d:'Уайымыңды жаз, умажда, себетке лақтыр.',g:'Жұдырық түй → алақанды аш',
+  i:'<path d="M14 22 L30 12 L48 20 L52 38 L40 52 L20 50 L10 36Z" fill="#fffdf7" stroke="#8d99a6" stroke-width="2"/><path d="M18 30 L32 26 L44 34 M24 44 L36 38" stroke="#b9c1c8" stroke-width="2" fill="none"/>'},
+ {id:'pour',t:'Эмоцияны кесеге құй',d:'Эмоцияңның түсін таңда да, шәйнекті еңкейт.',g:'Қолды бүйірге қисайт',
+  i:'<path d="M12 26 H46 L42 52 H16Z" fill="#4a8fe0"/><path d="M46 30 q12 2 4 14 l-6 0" stroke="#4a8fe0" stroke-width="4" fill="none"/><path d="M20 20 q4 -8 0 -14 M30 20 q4 -8 0 -14" stroke="#8d99a6" stroke-width="3" fill="none" stroke-linecap="round"/>'},
+ {id:'flower',t:'Тыныс гүлі',d:'Гүлмен бірге баяу дем ал, дем шығар.',g:'Алақанды баяу аш, баяу жұм',
+  i:'<g transform="translate(31 31)">'+Array.from({length:8},(_,k)=>'<ellipse rx="7" ry="15" cy="-14" fill="#ff8a7a" transform="rotate('+k*45+')"/>').join('')+'<circle r="8" fill="#f2c230"/></g>'},
+ {id:'thermo',t:'Қолмен термометр',d:'Көңіл-күйіңді қолыңның биіктігімен не саусақпен көрсет.',g:'Қолды көтер / түсір',
+  i:'<rect x="24" y="6" width="14" height="40" rx="7" fill="none" stroke="#8d99a6" stroke-width="3"/><rect x="28" y="22" width="6" height="26" fill="#2fae5b"/><circle cx="31" cy="50" r="9" fill="#2fae5b"/>'},
+ {id:'bubbles',t:'Көпіршікті жар',d:'Ауыр сезімдер жазылған көпіршіктерді жарып таста.',g:'Сұқ саусақпен түрт',
+  i:'<circle cx="22" cy="38" r="14" fill="#7fd3cf" opacity=".5" stroke="#0f5c63" stroke-width="2"/><circle cx="42" cy="22" r="11" fill="#7fd3cf" opacity=".5" stroke="#0f5c63" stroke-width="2"/><circle cx="46" cy="46" r="7" fill="#7fd3cf" opacity=".5" stroke="#0f5c63" stroke-width="2"/>'}
+];
+const REC={1:['squeeze','crumple','flower'],2:['bubbles','flower','crumple'],3:['pour','flower'],4:['pour','bubbles'],5:['pour','bubbles']};
+
+let store=null;try{store=window.localStorage}catch(e){}
+const load=(k,d)=>{try{const v=store&&store.getItem(k);return v?JSON.parse(v):d}catch(e){return d}};
+const save=(k,v)=>{try{store&&store.setItem(k,JSON.stringify(v))}catch(e){}};
+let stats=load('et_stats',null)||{b:[0,0,0,0,0],a:[0,0,0,0,0],imp:0,pairs:0};
+let classCup=load('et_cup',null)||{};
+let before=null,after=null;
+
+let actx=null;
+function tone(f,d=.12,type='sine',vol=.07){try{actx=actx||new(window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),g=actx.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(vol,actx.currentTime);g.gain.exponentialRampToValueAtTime(.0001,actx.currentTime+d);o.connect(g).connect(actx.destination);o.start();o.stop(actx.currentTime+d+.02)}catch(e){}}
+
+/* ---------- face ---------- */
+function face(c,x,y,r,lv,col){
+  col=col||LV[lv].c;c.save();c.translate(x,y);
+  const g=c.createRadialGradient(-r*.35,-r*.4,r*.1,0,0,r);g.addColorStop(0,light(col,.45));g.addColorStop(1,col);
+  c.fillStyle=g;c.beginPath();c.arc(0,0,r,0,Math.PI*2);c.fill();
+  c.fillStyle='#1d2433';c.strokeStyle='#1d2433';c.lineCap='round';c.lineWidth=Math.max(2,r*.08);
+  const ey=-r*.15,ex=r*.33;
+  c.beginPath();c.arc(-ex,ey,r*.09,0,7);c.arc(ex,ey,r*.09,0,7);c.fill();
+  if(lv<=2){c.beginPath();
+    if(lv===1){c.moveTo(-ex-r*.16,ey-r*.3);c.lineTo(-ex+r*.14,ey-r*.17);c.moveTo(ex+r*.16,ey-r*.3);c.lineTo(ex-r*.14,ey-r*.17)}
+    else{c.moveTo(-ex-r*.16,ey-r*.18);c.lineTo(-ex+r*.14,ey-r*.3);c.moveTo(ex+r*.16,ey-r*.18);c.lineTo(ex-r*.14,ey-r*.3)}
+    c.stroke()}
+  const my=r*.33,w=r*.36,cu=(lv-3)*r*.16;
+  c.beginPath();c.moveTo(-w,my-cu*.3);c.quadraticCurveTo(0,my+cu*1.4,w,my-cu*.3);
+  if(lv===5){c.closePath();c.fill()}else c.stroke();
+  c.restore();
+}
+function faceCanvas(cv,lv){const d=Math.min(2,window.devicePixelRatio||1),s=cv.clientWidth||64;cv.width=s*d;cv.height=s*d;const c=cv.getContext('2d');c.setTransform(d,0,0,d,0,0);face(c,s/2,s/2,s*.46,lv)}
+
+/* ---------- stage & input ---------- */
+const stage=$('#stage'),cv=$('#cv'),ctx=cv.getContext('2d');
+let W=0,H=0,DPR=1,INK='#1b2530',SOFT='#5b6670',TL='#0f5c63';
+const ro=new ResizeObserver(()=>{const r=stage.getBoundingClientRect();DPR=Math.min(2,window.devicePixelRatio||1);W=r.width;H=r.height;cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR)});
+ro.observe(stage);
+function readColors(){const s=getComputedStyle(document.body);INK=s.color;SOFT=s.getPropertyValue('--soft').trim()||SOFT;TL=getComputedStyle($('#hint')).color}
+
+const ptr={down:false,x:.5,y:.5,justDown:false,justUp:false,last:0,mv:0,lx:.5,ly:.5};
+function ppos(e){const r=cv.getBoundingClientRect();ptr.x=clamp((e.clientX-r.left)/r.width,0,1);ptr.y=clamp((e.clientY-r.top)/r.height,0,1);ptr.last=performance.now()}
+cv.addEventListener('pointerdown',e=>{ppos(e);ptr.lx=ptr.x;ptr.ly=ptr.y;ptr.down=true;ptr.justDown=true;try{cv.setPointerCapture(e.pointerId)}catch(_){}});
+cv.addEventListener('pointermove',e=>{if(ptr.down||e.pointerType==='mouse')ppos(e)});
+const pup=()=>{if(ptr.down){ptr.down=false;ptr.justUp=true;ptr.last=performance.now()}};
+cv.addEventListener('pointerup',pup);cv.addEventListener('pointercancel',pup);
+
+const hand={on:false,present:false,x:.5,y:.5,tipx:.5,tipy:.5,open:1,fingers:0,tilt:0,seen:0};
+const video=$('#vid'),pv=$('#pv'),pctx=pv.getContext('2d');
+let landmarker=null,lastVT=-1,lastLm=null;
+function setStatus(t,ok){const s=$('#status');s.textContent=t;s.classList.toggle('ok',!!ok)}
+async function startCam(){
+  const btn=$('#camBtn');btn.disabled=true;setStatus('Камера ашылуда…');
+  try{
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error('nomedia');
+    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:640},height:{ideal:480}},audio:false});
+    video.srcObject=stream;await video.play();$('#camBox').hidden=false;
+    setStatus('Қолды тану моделі жүктелуде… (интернет керек)');
+    const V='0.10.14';
+    const mod=await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@'+V+'/vision_bundle.mjs');
+    const fs=await mod.FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@'+V+'/wasm');
+    const o=d=>({baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',delegate:d},runningMode:'VIDEO',numHands:1});
+    try{landmarker=await mod.HandLandmarker.createFromOptions(fs,o('GPU'))}catch(e){landmarker=await mod.HandLandmarker.createFromOptions(fs,o('CPU'))}
+    hand.on=true;btn.textContent='Камера қосулы';setStatus('Дайын! Алақаныңды камераға көрсет.',true);showOverlays();
+  }catch(err){
+    setStatus(err&&err.name==='NotAllowedError'?'Камераға рұқсат берілмеді. Саусақпен не тінтуірмен басқара бер.':'Камера не қолды тану ашылмады. Саусақпен не тінтуірмен басқара бер.');
+    btn.disabled=false;btn.textContent='Камераны қайта қосу';
+  }
+}
+function detect(){
+  if(!landmarker||video.readyState<2||video.currentTime===lastVT)return;
+  lastVT=video.currentTime;let res;
+  try{res=landmarker.detectForVideo(video,performance.now())}catch(e){return}
+  const lm=res&&res.landmarks&&res.landmarks[0];lastLm=lm||null;
+  if(!lm){if(performance.now()-hand.seen>400)hand.present=false;return}
+  const vw=video.videoWidth||640,vh=video.videoHeight||480;
+  const P=i=>({x:(1-lm[i].x)*vw,y:lm[i].y*vh}),d=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+  const w=P(0),m9=P(9),palm=d(w,m9)||1;let s=0,f=0;
+  [[8,6],[12,10],[16,14],[20,18]].forEach(([t,p])=>{const dt=d(P(t),w);s+=dt/palm;if(dt>d(P(p),w)*1.1)f++});
+  if(d(P(4),P(5))>palm*.6&&d(P(4),P(17))>d(P(3),P(17)))f++;
+  const open=clamp((s/4-1.05)/.8,0,1);
+  const cx=(P(0).x+P(5).x+P(9).x+P(17).x)/4/vw,cy=(P(0).y+P(5).y+P(9).y+P(17).y)/4/vh;
+  const map=(v,a,b)=>clamp((v-a)/(b-a),0,1),k=hand.present?.45:1;
+  hand.x=lerp(hand.x,map(cx,.15,.85),k);hand.y=lerp(hand.y,map(cy,.15,.85),k);
+  hand.tipx=lerp(hand.tipx,map(P(8).x/vw,.12,.88),.6);hand.tipy=lerp(hand.tipy,map(P(8).y/vh,.12,.88),.6);
+  hand.open=lerp(hand.open,open,.5);hand.fingers=f;
+  hand.tilt=lerp(hand.tilt,Math.atan2(m9.x-w.x,w.y-m9.y),.4);
+  hand.present=true;hand.seen=performance.now();
+}
+function drawPreview(){
+  if($('#camBox').hidden||video.readyState<2)return;
+  pctx.save();pctx.translate(160,0);pctx.scale(-1,1);pctx.drawImage(video,0,0,160,120);pctx.restore();
+  if(lastLm){pctx.fillStyle='#ff6a4d';for(const p of lastLm){pctx.beginPath();pctx.arc((1-p.x)*160,p.y*120,2.4,0,7);pctx.fill()}}
+}
+function getInput(){
+  const usePtr=!hand.on||!hand.present||ptr.down||performance.now()-ptr.last<1500;
+  if(usePtr){const mv=ptr.down?Math.hypot((ptr.x-ptr.lx)*W,(ptr.y-ptr.ly)*H):0;ptr.lx=ptr.x;ptr.ly=ptr.y;return{mv,src:'ptr',x:ptr.x,y:ptr.y,tipx:ptr.x,tipy:ptr.y,open:ptr.down?0:1,fingers:0,tilt:0,down:ptr.down,justDown:ptr.justDown,justUp:ptr.justUp}}
+  return{src:'hand',x:hand.x,y:hand.y,tipx:hand.tipx,tipy:hand.tipy,open:hand.open,fingers:hand.fingers,tilt:hand.tilt,down:false,justDown:false,justUp:false};
+}
+const S=()=>clamp(Math.min(W,H)/450,.7,1.5);
+function txt(s,x,y,size,col,align,weight){ctx.fillStyle=col||INK;ctx.font=(weight||800)+' '+size+'px Nunito,system-ui,sans-serif';ctx.textAlign=align||'center';ctx.textBaseline='middle';ctx.fillText(s,x,y)}
+
+/* ---------- exercises ---------- */
+const make={
+squeeze(){let reps=0,closed=false,v=1,flash=0;
+  return{id:'squeeze',done:false,hint:'',prog:'0 / 5',msg:'Ашуды допқа бердің. Енді денең жеңілдеді.',
+  step(I,dt){v=lerp(v,I.open,.35);
+    if(!closed&&v<.3){closed=true;tone(200,.1,'triangle')}
+    if(closed&&v>.7){closed=false;reps++;flash=1;tone(320+reps*70,.2);if(reps>=5)this.done=true}
+    flash=Math.max(0,flash-dt*2);
+    this.hint=this.done?'Керемет! Доп енді жасыл.':closed?(I.src==='ptr'?'Қыс… енді жібер':'Қатты қыс… енді алақаныңды аш'):(I.src==='ptr'?'Допты басып, қысып тұр':'Жұдырығыңды қатты қыс');
+    this.prog=reps+' / 5'},
+  draw(){const R=Math.min(W,H)*.27,cx=W/2,cy=H*.47,t=reps/5,sq=1-v;
+    const rx=R*(.62+.38*v)*(1+sq*.35),ry=R*(.62+.38*v)*(1-sq*.12);
+    ctx.fillStyle='rgba(0,0,0,.12)';ctx.beginPath();ctx.ellipse(cx,cy+R*1.02,rx*.9,R*.1,0,0,7);ctx.fill();
+    if(flash>0){ctx.strokeStyle='rgba(47,174,91,'+flash+')';ctx.lineWidth=8;ctx.beginPath();ctx.arc(cx,cy,R*(1.1+(1-flash)*.5),0,7);ctx.stroke()}
+    ctx.save();ctx.translate(cx,cy+(R-ry));ctx.scale(rx/R,ry/R);
+    const lv=Math.min(5,1+Math.round(t*4));face(ctx,0,0,R,lv,mix('#e5483b','#2fae5b',t));ctx.restore();
+    for(let i=0;i<5;i++){ctx.fillStyle=i<reps?'#2fae5b':'rgba(127,140,150,.3)';ctx.beginPath();ctx.arc(cx+(i-2)*30*S(),H*.9,9*S(),0,7);ctx.fill()}}}},
+
+crumple(){let st='write',word='',p=0,bx=.42,by=.45,tb=0,ft=0,sx=0,sy=0,gt=0,shake=0;
+  const pts=Array.from({length:22},(_,i)=>({a:i/22*Math.PI*2,j:rnd(.1,1),k:rnd(-1,1)}));
+  const folds=Array.from({length:6},()=>[rnd(-.5,.5),rnd(-.5,.5),rnd(-.5,.5),rnd(-.5,.5)]);
+  return{id:'crumple',done:false,hint:'Уайымыңды бір-екі сөзбен жаз',prog:'',overlay:'word',msg:'Уайымың себетте қалды. Ол енді сенікі емес.',
+  setWord(w){word=(w.trim()||'уайым').slice(0,22);st='paper';this.overlay=null;showOverlays()},
+  step(I,dt){
+    if(st==='paper'){const fist=I.src==='ptr'?I.down:I.open<.35;
+      if(fist){p=Math.min(1,p+dt*.45+(I.mv||0)*.0016);if(Math.random()<dt*9)tone(rnd(110,190),.04,'triangle',.03)}
+      this.hint=fist?'Умажда… тағы қатты':(I.src==='ptr'?'Қағаздың үстінен сыз не басып тұр — умаждалады':'Жұдырығыңды түйіп, қағазды умажда');
+      this.prog=Math.round(p*100)+'%';
+      if(p>=1){st='ball';tb=0;bx=I.src==='ptr'?I.x:.42;by=I.src==='ptr'?I.y:.45;tone(260,.15)}}
+    else if(st==='ball'){tb+=dt;bx=lerp(bx,I.x,.25);by=lerp(by,I.y,.25);
+      this.hint=I.src==='ptr'?'Себетке қарай сыз да, жібер — лақтыр!':'Енді алақаныңды аш — лақтыр!';
+      const rel=I.src==='ptr'?!I.down:I.open>.7;
+      if(rel&&tb>.35){st='fly';ft=0;sx=bx*W;sy=by*H;tone(520,.2)}}
+    else if(st==='fly'){ft+=dt/.8;if(ft>=1){st='gone';shake=1;gt=0;tone(170,.25,'square',.04)}}
+    else if(st==='gone'){shake=Math.max(0,shake-dt*2.5);gt+=dt;this.hint='Уайым себетте қалды!';if(gt>.7)this.done=true}},
+  paper(x,y,pp,sc){const PW=Math.min(W*.44,320)*sc,PH=PW*.72;
+    ctx.save();ctx.translate(x,y);ctx.beginPath();
+    pts.forEach((q,i)=>{const c=Math.cos(q.a),s=Math.sin(q.a),r0=1/Math.max(Math.abs(c)/(PW/2),Math.abs(s)/(PH/2));
+      const r=r0*(1-.74*pp)*(1-pp*q.j*.25)+q.k*pp*r0*.06;i?ctx.lineTo(c*r,s*r):ctx.moveTo(c*r,s*r)});
+    ctx.closePath();ctx.fillStyle=mix('#fffdf7','#e9e4d8',pp);ctx.fill();ctx.strokeStyle='#9aa4ad';ctx.lineWidth=2;ctx.stroke();
+    if(pp>0){ctx.strokeStyle='rgba(120,130,140,'+(.15+pp*.5)+')';ctx.lineWidth=1.5;const k=PW*(1-.74*pp)*.5;
+      folds.forEach(f=>{ctx.beginPath();ctx.moveTo(f[0]*k*1.4,f[1]*k);ctx.lineTo(f[2]*k*1.4,f[3]*k);ctx.stroke()})}
+    if(pp<.9){ctx.globalAlpha=1-pp;const fs=Math.min(PW*.12,40)*(1-.5*pp);
+      if(word)txt(word,0,0,fs,'#1d2433');else txt('Уайымыңды жаз',0,0,Math.min(PW*.08,22),'#9aa4ad',null,700);ctx.globalAlpha=1}
+    ctx.restore()},
+  draw(){const bX=W*.82,bY=H*.86,bw=Math.min(W*.2,150),bh=bw*1.05,sh=Math.sin(performance.now()/40)*shake*6;
+    ctx.save();ctx.translate(bX+sh,bY);
+    ctx.fillStyle='#0f5c63';ctx.beginPath();ctx.moveTo(-bw/2,-bh);ctx.lineTo(bw/2,-bh);ctx.lineTo(bw*.38,0);ctx.lineTo(-bw*.38,0);ctx.closePath();ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,.25)';ctx.lineWidth=3;for(let i=-1;i<=1;i++){ctx.beginPath();ctx.moveTo(i*bw*.22,-bh*.85);ctx.lineTo(i*bw*.17,-bh*.12);ctx.stroke()}
+    ctx.fillStyle='#0b474c';ctx.fillRect(-bw*.56,-bh-8,bw*1.12,12);ctx.restore();
+    if(st==='write'||st==='paper')this.paper(W*.42,H*.48,p,1);
+    else if(st==='ball')this.paper(bx*W,by*H,1,1);
+    else if(st==='fly'){const x=lerp(sx,bX,ft),y=lerp(sy,bY-bh-10,ft)-Math.sin(ft*Math.PI)*H*.22;this.paper(x,y,1,1-ft*.45)}
+    else if(st==='gone')txt('Уайым кетті!',W*.42,H*.45,32*S(),'#2fae5b',null,900)}}},
+
+pour(){const C=[['Қуаныш','#f2c230'],['Мұң','#4a8fe0'],['Ашу','#e5483b'],['Қорқыныш','#8a5cc7'],['Тыныштық','#2fae5b'],['Шаршау','#8d99a6']];
+  let col=null,name='',rot=0,fill=0,added=false,t=0;
+  return{id:'pour',done:false,hint:'Эмоцияңның түсін таңда',prog:'0%',overlay:'colors',colors:C,msg:'Эмоцияңды кесеге құйдың. Оны ішіңде сақтамай, сыртқа шығардың.',
+  pick(n,c){name=n;col=c;this.hint=''},get name(){return name},
+  step(I,dt){t+=dt;if(!col){this.hint='Жоғарыдан эмоцияңның түсін таңда';return}
+    const target=I.src==='ptr'?(I.down?1.05:0)*1:clamp((Math.abs(I.tilt)-.15)*1.6,0,1.15);
+    rot+=(target-rot)*Math.min(1,dt*(I.src==='ptr'?3:6));
+    const pouring=rot>.55&&fill<1;
+    if(pouring){fill=Math.min(1,fill+dt*.17);if(Math.random()<dt*6)tone(rnd(600,900),.05,'sine',.025)}
+    if(fill>=1&&!added){added=true;classCup[name]=(classCup[name]||0)+1;save('et_cup',classCup);tone(660,.3);this.done=true}
+    this.hint=fill>=1?'Кесе толды!':pouring?'Құйылып жатыр… эмоцияң кесеге ауысып жатыр':(I.src==='ptr'?'Сахнаны басып тұр — шәйнек еңкейеді':'Қолыңды бүйірге қисайт — шәйнек еңкейеді');
+    this.prog=Math.round(fill*100)+'%'},
+  draw(){const s=Math.min(W,H)/430,px=W*.32,py=H*(W<600?.48:.36),pc=col||'#c3cbd1';
+    const cx=W*.7,cw=150*s,ch=110*s,cT=H*.64;
+    // class cup
+    const tot=Object.values(classCup).reduce((a,b)=>a+b,0),kx=W*.08+20*s,kw=46*s,kh=64*s,kb=H*.92;
+    ctx.save();ctx.beginPath();ctx.moveTo(kx-kw/2,kb-kh);ctx.lineTo(kx+kw/2,kb-kh);ctx.lineTo(kx+kw*.38,kb);ctx.lineTo(kx-kw*.38,kb);ctx.closePath();
+    ctx.strokeStyle=SOFT;ctx.lineWidth=2.5;ctx.stroke();ctx.clip();
+    if(tot){let y=kb;const Hh=kh*Math.min(1,.25+tot/30);C.forEach(([n,c])=>{const v=classCup[n]||0;if(!v)return;const h=Hh*v/tot;ctx.fillStyle=c;ctx.fillRect(kx-kw,y-h,kw*2,h+1);y-=h})}
+    ctx.restore();txt('Сынып кесесі: '+tot,kx-kw*.5,kb-kh-16,13*Math.max(1,s),SOFT,'left',800);
+    // stream
+    const lx=127*s,ly=-48*s,cs=Math.cos(rot),sn=Math.sin(rot),tx=px+cs*lx-sn*ly,ty=py+sn*lx+cs*ly;
+    const surf=cT+ch*(1-fill*.9);
+    if(col&&rot>.55&&fill<1){ctx.strokeStyle=col;ctx.lineWidth=8*s;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(tx,ty);ctx.quadraticCurveTo(tx+(cx-tx)*.6,ty,cx,surf);ctx.stroke()}
+    // cup
+    ctx.save();ctx.fillStyle='rgba(0,0,0,.1)';ctx.beginPath();ctx.ellipse(cx,cT+ch+8*s,cw*.7,12*s,0,0,7);ctx.fill();
+    ctx.strokeStyle=SOFT;ctx.lineWidth=10*s;ctx.beginPath();ctx.arc(cx+cw*.48,cT+ch*.4,26*s,-1.2,1.2);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx-cw/2,cT);ctx.lineTo(cx+cw/2,cT);ctx.lineTo(cx+cw*.38,cT+ch);ctx.lineTo(cx-cw*.38,cT+ch);ctx.closePath();
+    ctx.fillStyle='rgba(255,255,255,.75)';ctx.fill();ctx.save();ctx.clip();
+    if(fill>0&&col){ctx.fillStyle=col;ctx.fillRect(cx-cw,cT+ch*(1-fill*.9),cw*2,ch)}ctx.restore();
+    ctx.lineWidth=3;ctx.stroke();ctx.restore();
+    // teapot
+    ctx.save();ctx.translate(px,py);ctx.rotate(rot);ctx.lineCap='round';
+    ctx.strokeStyle=pc;ctx.lineWidth=14*s;ctx.beginPath();ctx.arc(-80*s,0,32*s,Math.PI*.5,Math.PI*1.5);ctx.stroke();
+    ctx.lineWidth=17*s;ctx.beginPath();ctx.moveTo(55*s,12*s);ctx.quadraticCurveTo(104*s,6*s,125*s,-46*s);ctx.stroke();
+    const g=ctx.createRadialGradient(-25*s,-25*s,8*s,0,0,85*s);g.addColorStop(0,light(pc,.45));g.addColorStop(1,pc);
+    ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(0,0,82*s,64*s,0,0,7);ctx.fill();
+    ctx.fillStyle=light(pc,.2);ctx.beginPath();ctx.ellipse(0,-62*s,38*s,12*s,0,0,7);ctx.fill();
+    ctx.beginPath();ctx.arc(0,-76*s,9*s,0,7);ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,.85)';ctx.beginPath();ctx.ellipse(-8*s,10*s,30*s,12*s,0,0,7);ctx.fill();
+    txt(name||'?',-8*s,10*s,Math.max(12,15*s),'#1d2433',null,900);ctx.restore()}}},
+
+flower(){let t=-3,v=0,score=0,n=0,target=0;const CY=3;const ease=x=>.5-Math.cos(x*Math.PI)/2;
+  return{id:'flower',done:false,hint:'',prog:'',msg:'Тынысың баяулады. Баяу тыныс жүйкені тыныштандырады.',
+  step(I,dt){t+=dt;v=I.src==='ptr'?clamp(v+(I.down?1:-1)*dt/3,0,1):lerp(v,I.open,.18);
+    if(t<0){target=0;this.hint=I.src==='ptr'?'Дайындал… басып тұрсаң гүл ашылады':'Алақаныңды жұмып, дайындал…';this.prog='Дайындық';return}
+    const c=Math.floor(t/8),ph=t%8;
+    if(c>=CY){if(!this.done){this.done=true;tone(523,.3);this.msg='Ырғақпен '+Math.round(score/Math.max(1,n)*100)+'% сәйкес тыныс алдың. Тамаша!'}return}
+    target=ph<4?ease(ph/4):1-ease((ph-4)/4);
+    score+=1-Math.abs(v-target);n++;
+    this.hint=ph<4?(I.src==='ptr'?'Дем ал… басып тұр':'Дем ал… алақаныңды баяу аш'):(I.src==='ptr'?'Дем шығар… жібер':'Дем шығар… баяу жұм');
+    this.prog=(c+1)+' / '+CY+' · ырғақ '+Math.round(score/n*100)+'%'},
+  draw(){const cx=W/2,cy=H*.44,R=Math.min(W,H)*.3;
+    ctx.strokeStyle='#3c8f4f';ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(cx,cy);ctx.quadraticCurveTo(cx-12,H*.75,cx,H);ctx.stroke();
+    ctx.fillStyle='#4aa860';[[-1,.74],[1,.84]].forEach(([d,y])=>{ctx.beginPath();ctx.ellipse(cx+d*R*.28,H*y,R*.3,R*.11,d*-.5,0,7);ctx.fill()});
+    ctx.setLineDash([8,10]);ctx.strokeStyle=TL;ctx.lineWidth=3;ctx.beginPath();ctx.arc(cx,cy,R*(.3+.7*target),0,7);ctx.stroke();ctx.setLineDash([]);
+    const L=R*(.3+.7*v),sp=.25+.75*v;
+    for(let layer=0;layer<2;layer++){const N=layer?6:10,len=L*(layer?.62:1),col=layer?'#ffb3a7':'#ff7d6b';
+      for(let i=0;i<N;i++){const a=-Math.PI/2+(i-(N-1)/2)*(2*Math.PI/N)*sp;
+        ctx.save();ctx.translate(cx,cy);ctx.rotate(a+Math.PI/2);ctx.fillStyle=col;ctx.globalAlpha=.92;
+        ctx.beginPath();ctx.ellipse(0,-len*.5,len*.2,len*.5,0,0,7);ctx.fill();ctx.restore()}}
+    ctx.globalAlpha=1;ctx.fillStyle='#f2c230';ctx.beginPath();ctx.arc(cx,cy,R*.14,0,7);ctx.fill();
+    if(t<0)txt(String(Math.ceil(-t)),cx,cy,R*.18,'#1d2433',null,900)}}},
+
+thermo(phase){let mode='height',lv=0,hold=0,picked=0,pt=0;
+  const top=.07,span=.86,lvY=k=>H*(top+span*((5-k)+.5)/5);
+  return{id:'thermo',phase,done:false,hint:'',prog:phase==='before'?'Жаттығуға дейін':'Жаттығудан кейін',overlay:'mode',
+  setMode(m){mode=m;lv=0;hold=0},
+  step(I,dt){if(picked){pt+=dt;lv=picked;if(pt>.9&&!this.done){this.done=true;onPick(picked,phase)}return}
+    if(I.src==='ptr'){if(I.down||I.justDown||I.justUp){const n=clamp(5-Math.floor((I.y-top)/span*5),1,5);if(n!==lv){lv=n;tone(250+n*60,.05,'triangle',.04)}}
+      if(I.justUp&&lv){picked=lv;tone(300+lv*80,.2)}
+      this.hint='Өз жолыңды бас не термометр бойымен сызып, жібер';return}
+    const n=mode==='height'?clamp(Math.ceil((1-I.y)*5),1,5):Math.min(5,I.fingers);
+    if(n===lv&&n>0)hold+=dt;else{lv=n;hold=0}
+    if(hold>=1.5){picked=lv;tone(300+lv*80,.2)}
+    this.hint=mode==='height'?'Қолыңды көтер не түсір, сосын ұстап тұр':'1-ден 5-ке дейін саусақ көрсет, ұстап тұр'},
+  draw(){const s=S(),tx=Math.max(34,W*.08),tw=22*s,fs=clamp(W/26,14,22),rowH=H*span/5;
+    ctx.fillStyle='rgba(127,140,150,.18)';ctx.beginPath();ctx.roundRect(tx-tw/2,H*top,tw,H*span,tw/2);ctx.fill();
+    for(let k=1;k<=5;k++){ctx.fillStyle=LV[k].c;ctx.globalAlpha=lv&&k<=lv?1:.25;ctx.fillRect(tx-tw/2+4,lvY(k)-rowH/2,tw-8,rowH+1)}ctx.globalAlpha=1;
+    for(let k=1;k<=5;k++){const y=lvY(k),x0=tx+tw,on=k===lv;
+      if(on){ctx.fillStyle=light(LV[k].c,.7);ctx.globalAlpha=.9;ctx.beginPath();ctx.roundRect(x0+6,y-rowH/2+4,W-x0-18,rowH-8,16);ctx.fill();ctx.globalAlpha=1}
+      const fr=Math.min(rowH*.36,34*s),fx=x0+16+fr;face(ctx,fx,y,on?fr*1.12:fr,k);
+      if(on&&hold>0&&!picked){ctx.strokeStyle=TL;ctx.lineWidth=5;ctx.beginPath();ctx.arc(fx,y,fr*1.35,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.min(1,hold/1.5));ctx.stroke()}
+      const lx=fx+fr+14,maxw=W-lx-20,parts=LV[k].t.split(', ');
+      ctx.font='800 '+fs+'px Nunito,system-ui,sans-serif';
+      const col=on?'#1d2433':INK;
+      if(ctx.measureText(LV[k].t).width<=maxw)txt(LV[k].t,lx,y,fs,col,'left',on?900:800);
+      else{txt(parts[0]+',',lx,y-fs*.6,fs,col,'left',on?900:800);txt(parts[1]||'',lx,y+fs*.6,fs,col,'left',on?900:800)}}
+    if(picked)txt('Белгіленді',W-24,H*.04+10,16,TL,'right',900)}}},
+
+bubbles(){const NEG=['ашу','қорқыныш','ренжу','уайым','ыза','мазасыздық','жалғыздық','шаршау','күйзеліс','ұят'],POS=['тыныштық','сенім','қуаныш','достық','батылдық','шабыт','күш','мейірім'];
+  let bs=[],parts=[],floats=[],sp=0,popped=0,t=0;const N=10;
+  return{id:'bubbles',done:false,hint:'',prog:'0 / '+N,msg:'Ауыр сезімдердің орнына жақсы сезімдер шықты.',
+  step(I,dt){t+=dt;sp-=dt;const s=S();
+    if(sp<=0&&bs.length<6&&popped<N){const r=rnd(40,58)*s;bs.push({x:rnd(r,W-r),y:H+r,r,vy:rnd(38,64)*s,ph:rnd(0,6),w:NEG[Math.floor(Math.random()*NEG.length)]});sp=.85}
+    bs.forEach(b=>{b.y-=b.vy*dt;b.x+=Math.sin(t*1.5+b.ph)*14*dt});
+    const can=I.src==='hand'||I.down,fx=I.tipx*W,fy=I.tipy*H;
+    bs=bs.filter(b=>{if(b.y<-b.r)return false;
+      if(can&&Math.hypot(b.x-fx,b.y-fy)<b.r){popped++;tone(480+popped*45,.09,'triangle');
+        for(let i=0;i<12;i++){const a=i/12*Math.PI*2;parts.push({x:b.x,y:b.y,vx:Math.cos(a)*rnd(80,160),vy:Math.sin(a)*rnd(80,160),l:1})}
+        floats.push({x:b.x,y:b.y,w:POS[Math.floor(Math.random()*POS.length)],l:1});
+        if(popped>=N)this.done=true;return false}return true});
+    parts.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.l-=dt*1.8});parts=parts.filter(p=>p.l>0);
+    floats.forEach(f=>{f.y-=40*dt;f.l-=dt*.6});floats=floats.filter(f=>f.l>0);
+    this.hint=this.done?'Барлығы жарылды!':(I.src==='hand'?'Сұқ саусағыңмен көпіршікті түрт':'Көпіршікті бас не үстінен сызып жар');
+    this.prog=popped+' / '+N},
+  draw(){const s=S();
+    bs.forEach(b=>{const g=ctx.createRadialGradient(b.x-b.r*.3,b.y-b.r*.35,b.r*.1,b.x,b.y,b.r);
+      g.addColorStop(0,'rgba(255,255,255,.85)');g.addColorStop(.5,'rgba(127,211,207,.35)');g.addColorStop(1,'rgba(15,92,99,.35)');
+      ctx.fillStyle=g;ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,7);ctx.fill();ctx.strokeStyle='rgba(15,92,99,.6)';ctx.lineWidth=2;ctx.stroke();
+      txt(b.w,b.x,b.y+2,Math.min(18*s,b.r*2.4/Math.max(4,b.w.length)),'#16323a',null,900)});
+    parts.forEach(p=>{ctx.globalAlpha=p.l;ctx.fillStyle='#7fd3cf';ctx.beginPath();ctx.arc(p.x,p.y,4,0,7);ctx.fill()});
+    floats.forEach(f=>{ctx.globalAlpha=Math.max(0,f.l);txt(f.w,f.x,f.y,20*s,'#2fae5b',null,900)});ctx.globalAlpha=1}}}
+};
+
+/* ---------- flow ---------- */
+let cur=null;
+const sections=['home','play','result'];
+function show(id){sections.forEach(s=>$('#'+s).hidden=s!==id);document.body.classList.toggle('playing',id!=='home');window.scrollTo(0,0)}
+function openEx(id){
+  if(id==='thermo'){openThermo();return}
+  cur=make[id]();$('#ptitle').textContent=EX.find(e=>e.id===id).t;startPlay();
+}
+function openThermo(){const ph=before==null?'before':'after';cur=make.thermo(ph);$('#ptitle').textContent=ph==='before'?'Көңіл-күйіңді өлше':'Қазір көңіл-күйің қандай?';startPlay()}
+function startPlay(){$('#doneBox').hidden=true;$('#wordIn').value='';show('play');readColors();showOverlays()}
+function showOverlays(){
+  const o=cur&&cur.overlay;
+  $('#ovWord').hidden=o!=='word';$('#ovColors').hidden=o!=='colors';$('#ovMode').hidden=!(o==='mode'&&hand.on);
+  if(o==='colors')$('#ovColors').innerHTML=cur.colors.map(([n,c],i)=>'<button type="button" class="chip" data-i="'+i+'" style="background:'+c+'">'+n+'</button>').join('');
+  if(o==='word')setTimeout(()=>{try{$('#wordIn').focus()}catch(e){}},50);
+}
+$('#ovWord').addEventListener('submit',e=>{e.preventDefault();if(cur&&cur.setWord)cur.setWord($('#wordIn').value);try{$('#wordIn').blur()}catch(_){}});
+$('#ovColors').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b||!cur||!cur.pick)return;const [n,c]=cur.colors[+b.dataset.i];cur.pick(n,c);
+  $('#ovColors').querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x===b))});
+$('#ovMode').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!cur||!cur.setMode)return;cur.setMode(b.dataset.m);
+  $('#ovMode').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b))});
+
+function onPick(lv,phase){
+  if(phase==='before'){before=lv;stats.b[lv-1]++;save('et_stats',stats);renderHome();show('home');return}
+  after=lv;stats.a[lv-1]++;if(before!=null){stats.pairs++;if(after>before)stats.imp++}save('et_stats',stats);renderResult();show('result');
+}
+function finishEx(){
+  if(!cur||cur.id==='thermo')return;
+  $('#doneMsg').textContent=cur.msg||'';$('#doneBox').hidden=false;
+}
+function renderHome(){
+  const box=$('#stepBox');
+  if(before==null){box.innerHTML='<div><h2>1-қадам. Көңіл-күйіңді өлше</h2><p>Қолыңды көтеріп не саусақпен басып, бес деңгейдің бірін таңда.</p></div><button class="btn" id="measureBtn" type="button">Өлшеуді бастау</button>'}
+  else{box.innerHTML='<div class="me"><canvas id="meFace"></canvas><div><h2>Сенің көңіл-күйің: '+LV[before].t.toLowerCase()+'</h2><p>2-қадам. Жаттығу таңда. Қызыл жиектелгендері саған ұсынылады.</p></div></div><button class="plain" id="measureBtn" type="button">Жаттығудан кейін қайта өлшеу</button>';
+    faceCanvas($('#meFace'),before)}
+  $('#measureBtn').onclick=openThermo;
+  const rec=before?REC[before]:[];
+  $('#cards').innerHTML=EX.map(e=>'<button type="button" class="card'+(rec.includes(e.id)?' rec':'')+'" data-id="'+e.id+'"><svg viewBox="0 0 62 62" aria-hidden="true">'+e.i+'</svg><b>'+e.t+'</b><span>'+e.d+'</span><em>'+e.g+'</em>'+(rec.includes(e.id)?'<span class="tag">Саған ұсынылады</span>':'')+'</button>').join('');
+  renderStats();
+}
+$('#cards').addEventListener('click',e=>{const c=e.target.closest('.card');if(c)openEx(c.dataset.id)});
+function renderStats(){
+  const mb=Math.max(1,...stats.b),ma=Math.max(1,...stats.a);
+  let h='<div class="sr h"><span>Деңгей</span><span>Жаттығуға дейін</span><span>Жаттығудан кейін</span></div>';
+  for(let k=5;k>=1;k--)h+='<div class="sr"><span>'+k+' · '+LV[k].t+'</span><div class="m"><i style="width:'+(stats.b[k-1]/mb*100)+'%;background:'+LV[k].c+'"></i><s>'+stats.b[k-1]+'</s></div><div class="m"><i style="width:'+(stats.a[k-1]/ma*100)+'%;background:'+LV[k].c+'"></i><s>'+stats.a[k-1]+'</s></div></div>';
+  const avg=a=>{const n=a.reduce((x,y)=>x+y,0);return n?(a.reduce((x,y,i)=>x+y*(i+1),0)/n).toFixed(1):'—'};
+  h+='<p class="note" style="margin:6px 0 0">Орташа: дейін '+avg(stats.b)+' → кейін '+avg(stats.a)+'. Екі рет өлшегендердің '+stats.pairs+' оқушысының '+stats.imp+'-нің көңіл-күйі көтерілді. «1 — қатты мазасыз» белгісін қойғандармен жеке сөйлескен жөн.</p>';
+  $('#stats').innerHTML=h;
+}
+function renderResult(){
+  const f=$('#rFaces');let msg,title;
+  if(before==null){f.innerHTML='<figure><canvas id="fa"></canvas>Қазір</figure>';title=LV[after].t;
+    msg=after<=2?'Бұл сезім де қалыпты. Психологпен не сенетін ересекпен сөйлесіп көр.':'Жақсы! Осы көңіл-күйді сабаққа да ала бар.'}
+  else{f.innerHTML='<figure><canvas id="fb"></canvas>Дейін: '+before+'</figure><span class="arrow">→</span><figure><canvas id="fa"></canvas>Кейін: '+after+'</figure>';
+    if(after>before){title='Көңіл-күйің көтерілді!';msg='Жаттығу көмектесті: '+before+'-деңгейден '+after+'-деңгейге көтерілдің. Ашу мен уайымды осылай сыртқа шығаруды есіңде сақта.'}
+    else if(after===before){title=after>=4?'Жақсы көңіл-күй сақталды':'Көңіл-күйің өзгерген жоқ';msg=after>=4?'Тамаша, осылай жалғастыр!':'Ештеңе етпейді. Тағы бір жаттығу жасап көр немесе психологпен сөйлес.'}
+    else{title='Сезіміңді шынайы көрсеттің';msg='Кейде жаттығудан кейін сезім айқынырақ білінеді. Психологпен сөйлесу көмектеседі.'}}
+  $('#rTitle').textContent=title;$('#rMsg').textContent=msg;
+  requestAnimationFrame(()=>{if($('#fb'))faceCanvas($('#fb'),before);faceCanvas($('#fa'),after)});
+}
+$('#backBtn').onclick=()=>{cur=null;renderHome();show('home')};
+$('#otherEx').onclick=()=>{cur=null;renderHome();show('home')};
+$('#againMeasure').onclick=()=>openThermo();
+$('#nextKid').onclick=()=>{before=after=null;cur=null;renderHome();show('home')};
+$('#moreEx').onclick=()=>{before=after;after=null;cur=null;renderHome();show('home')};
+$('#camBtn').onclick=startCam;
+$('#fsBtn').onclick=()=>{try{const p=document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();p&&p.catch&&p.catch(()=>{})}catch(e){}};
+$('#resetBtn').onclick=()=>{$('#resetYes').hidden=false};
+$('#resetYes').onclick=()=>{stats={b:[0,0,0,0,0],a:[0,0,0,0,0],imp:0,pairs:0};classCup={};save('et_stats',stats);save('et_cup',classCup);$('#resetYes').hidden=true;renderStats()};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#play').hidden)$('#backBtn').click()});
+
+let last=performance.now(),frame=0,lastHint='',lastProg='';
+function loop(now){
+  const dt=Math.min(.05,(now-last)/1000);last=now;
+  if(hand.on){detect();drawPreview()}
+  if(cur&&!$('#play').hidden&&W>0){
+    if(++frame%60===0)readColors();
+    const I=getInput();
+    try{
+    ctx.setTransform(DPR,0,0,DPR,0,0);ctx.clearRect(0,0,W,H);
+    if(!cur.done||cur.id!=='thermo')cur.step(I,dt);
+    cur.draw();
+    if(I.src==='hand'){const bx=(cur.id==='bubbles'?I.tipx:I.x)*W,by=(cur.id==='bubbles'?I.tipy:I.y)*H;
+      ctx.strokeStyle='#ff6a4d';ctx.lineWidth=4;ctx.fillStyle='rgba(255,106,77,.18)';ctx.beginPath();ctx.arc(bx,by,cur.id==='bubbles'?12:14+16*I.open,0,7);ctx.fill();ctx.stroke()}
+    else if(hand.on&&!hand.present&&performance.now()-ptr.last>1500)txt('Қолыңды камераға көрсет',W/2,H-24,16,SOFT,null,800);
+    if(cur.hint!==lastHint){lastHint=cur.hint;$('#hint').textContent=cur.hint}
+    if(cur.prog!==lastProg){lastProg=cur.prog;$('#prog').textContent=cur.prog}
+    if(cur.done&&!cur.shown){cur.shown=true;setTimeout(finishEx,650)}
+    }catch(err){console.error(err)}
+  }
+  ptr.justDown=ptr.justUp=false;
+  requestAnimationFrame(loop);
+}
+renderHome();readColors();requestAnimationFrame(loop);
+}
+</script>
+</body>
+</html>
